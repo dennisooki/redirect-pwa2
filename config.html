@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration - Dark Theme Redirector</title>
+    
+    <!-- Critical: These meta tags fix the Android status bar -->
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: #252525;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #b0b0b0;
+        }
+        
+        input[type="url"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+        
+        input[type="url"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        
+        .helper-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-label {
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #404040;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4a90e2;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #357abd;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            background: #1a3a1a;
+            border-left: 3px solid #4caf50;
+            border-radius: 4px;
+            color: #90ee90;
+            display: none;
+        }
+        
+        .status.error {
+            background: #3a1a1a;
+            border-left-color: #f44336;
+            color: #ff9090;
+        }
+        
+        .current-config {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .current-config p {
+            margin: 5px 0;
+            color: #888;
+        }
+        
+        .current-config strong {
+            color: #b0b0b0;
+        }
+        
+        .home-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        
+        .home-link:hover {
+            text-decoration: underline;
+        }
+        
+        .icon-preview {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-top: 10px;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Configuration</h1>
+        <p class="subtitle">Set up your redirect preferences</p>
+        
+        <div class="current-config" id="current-config">
+            <!-- Will be populated by JavaScript -->
+        </div>
+        
+        <div class="form-group">
+            <label for="appName">App Name</label>
+            <input type="text" id="appName" placeholder="My App">
+            <p class="helper-text">This will be the name of your installed PWA</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="url">Redirect URL</label>
+            <input type="url" id="url" placeholder="https://example.com" oninput="updateToggleState()">
+            <p class="helper-text">The website you want to redirect to</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="iconUrl">Icon URL (optional)</label>
+            <input type="url" id="iconUrl" placeholder="https://example.com/icon.png" oninput="previewIcon()">
+            <p class="helper-text">Custom icon for your PWA. Will try to fetch from target site if left empty.</p>
+            <img id="iconPreview" class="icon-preview" alt="Icon preview">
+        </div>
+        
+        <div class="toggle-group">
+            <label class="toggle-label">Enable Redirect</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <p id="toggle-hint" style="color: #888; font-size: 13px; margin-top: -15px; margin-bottom: 20px; display: none;">Enter a URL to enable redirect</p>
+        
+        <button onclick="saveConfig()">Save Configuration</button>
+        
+        <div class="status" id="status"></div>
+        
+        <a href="/" class="home-link">← Back to Home</a>
+    </div>
+
+    <script>
+        // Cookie utilities
+        function setCookie(name, value, days = 365) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+        }
+        
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+            return null;
+        }
+        
+        // Load existing configuration
+        const savedUrl = getCookie('redirectUrl') || '';
+        const savedEnabled = getCookie('redirectEnabled') === 'true' && savedUrl;
+        const savedName = getCookie('appName') || '';
+        const savedIcon = getCookie('iconUrl') || '';
+        
+        // Populate form
+        document.getElementById('url').value = savedUrl;
+        document.getElementById('toggle').checked = savedEnabled;
+        document.getElementById('appName').value = savedName;
+        document.getElementById('iconUrl').value = savedIcon;
+        
+        // Show current config
+        const configDiv = document.getElementById('current-config');
+        configDiv.innerHTML = `
+            <p><strong>Status:</strong> ${savedEnabled ? '✅ Enabled' : '❌ Disabled'}</p>
+            <p><strong>App Name:</strong> ${savedName || 'Not set (default will be used)'}</p>
+            <p><strong>Target URL:</strong> ${savedUrl || 'Not set'}</p>
+            <p><strong>Custom Icon:</strong> ${savedIcon || 'Will attempt to fetch from target site'}</p>
+        `;
+        
+        // Update toggle state on load
+        updateToggleState();
+        
+        // Preview icon if set
+        if (savedIcon) {
+            previewIcon();
+        }
+        
+        // Update toggle state when URL input changes
+        function updateToggleState() {
+            const urlInput = document.getElementById('url');
+            const toggle = document.getElementById('toggle');
+            const slider = toggle.nextElementSibling;
+            const hint = document.getElementById('toggle-hint');
+            
+            if (urlInput.value.trim()) {
+                toggle.disabled = false;
+                slider.style.opacity = '1';
+                slider.style.cursor = 'pointer';
+                hint.style.display = 'none';
+            } else {
+                toggle.disabled = true;
+                toggle.checked = false;
+                slider.style.opacity = '0.5';
+                slider.style.cursor = 'not-allowed';
+                hint.style.display = 'block';
+            }
+        }
+        
+        // Preview icon
+        function previewIcon() {
+            const iconUrl = document.getElementById('iconUrl').value.trim();
+            const preview = document.getElementById('iconPreview');
+            
+            if (iconUrl) {
+                preview.src = iconUrl;
+                preview.style.display = 'block';
+                preview.onerror = function() {
+                    preview.style.display = 'none';
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        // Try to fetch favicon from URL
+        async function tryFetchFavicon(url) {
+            try {
+                const urlObj = new URL(url);
+                const baseUrl = `${urlObj.protocol}//${urlObj.hostname}`;
+                
+                // Try common favicon locations
+                const possibleIcons = [
+                    `${baseUrl}/favicon.ico`,
+                    `${baseUrl}/favicon.png`,
+                    `${baseUrl}/apple-touch-icon.png`,
+                    `${baseUrl}/icon.png`
+                ];
+                
+                // Return the first one (we can't actually test if it loads due to CORS)
+                return possibleIcons[0];
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        // Save configuration function
+        async function saveConfig() {
+            const url = document.getElementById('url').value.trim();
+            const enabled = document.getElementById('toggle').checked;
+            const appName = document.getElementById('appName').value.trim();
+            let iconUrl = document.getElementById('iconUrl').value.trim();
+            const status = document.getElementById('status');
+            
+            if (enabled && !url) {
+                status.textContent = 'Please enter a URL when redirect is enabled';
+                status.className = 'status error';
+                status.style.display = 'block';
+                return;
+            }
+            
+            if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                status.textContent = 'URL must start with http:// or https://';
+                status.className = 'status error';
+                status.style.display = 'block';
+                return;
+            }
+            
+            // If no icon URL provided, try to fetch from target site
+            if (url && !iconUrl) {
+                const fetchedIcon = await tryFetchFavicon(url);
+                if (fetchedIcon) {
+                    iconUrl = fetchedIcon;
+                }
+            }
+            
+            setCookie('redirectUrl', url);
+            setCookie('redirectEnabled', enabled);
+            setCookie('appName', appName || 'Dark Theme Redirector');
+            setCookie('iconUrl', iconUrl);
+            
+            status.textContent = 'Configuration saved successfully! Refresh the home page to see changes.';
+            status.className = 'status';
+            status.style.display = 'block';
+            
+            // Update manifest
+            updateManifest();
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Update manifest dynamically
+        function updateManifest() {
+            // Note: This creates a data URL manifest
+            // For production, you'd want to generate a real manifest.json file server-side
+            const appName = getCookie('appName') || 'Dark Theme Redirector';
+            const iconUrl = getCookie('iconUrl') || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%231a1a1a\'/%3E%3Ctext x=\'50\' y=\'55\' font-size=\'50\' text-anchor=\'middle\' fill=\'%23ffffff\'%3ER%3C/text%3E%3C/svg%3E';
+            
+            const manifest = {
+                name: appName,
+                short_name: appName,
+                start_url: "/",
+                display: "standalone",
+                background_color: "#1a1a1a",
+                theme_color: "#1a1a1a",
+                orientation: "portrait",
+                icons: [
+                    {
+                        src: iconUrl,
+                        sizes: "192x192",
+                        type: "image/png"
+                    },
+                    {
+                        src: iconUrl,
+                        sizes: "512x512",
+                        type: "image/png"
+                    }
+                ]
+            };
+            
+            // This is a note for the user - in production you'd generate manifest.json server-side
+            console.log('Manifest configuration:', manifest);
+        }
+    </script>
+</body>
+</html>

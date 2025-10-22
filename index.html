@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Dark Theme Redirector</title>
+    
+    <!-- Critical: These meta tags fix the Android status bar -->
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    
+    <!-- PWA manifest - will be dynamically generated -->
+    <link rel="manifest" id="manifest-link" href="/manifest.json">
+    
+    <!-- Dynamic favicon -->
+    <link rel="icon" id="favicon-link" type="image/x-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1a1a'/%3E%3Ctext x='50' y='55' font-size='50' text-anchor='middle' fill='%23ffffff'%3ER%3C/text%3E%3C/svg%3E">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: #252525;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .current-config {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .current-config p {
+            margin: 5px 0;
+            color: #888;
+        }
+        
+        .current-config strong {
+            color: #b0b0b0;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #357abd;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .info-text {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .info-text p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌙 Dark Theme Redirector</h1>
+        <p class="subtitle">A PWA that fixes Android status bar theming</p>
+        
+        <div class="current-config" id="status-display">
+            <p>Loading configuration...</p>
+        </div>
+        
+        <button onclick="window.location.href='/config'">⚙️ Configure</button>
+        
+        <div class="info-text">
+            <p>Install this as a PWA on your Android device</p>
+            <p>Firefox Menu → Install</p>
+        </div>
+    </div>
+
+    <script>
+        // Cookie utilities
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+        
+        // Load configuration and update display
+        const redirectUrl = getCookie('redirectUrl') || '';
+        const redirectEnabled = getCookie('redirectEnabled') === 'true' && redirectUrl;
+        const appName = getCookie('appName') || 'Dark Theme Redirector';
+        const iconUrl = getCookie('iconUrl') || '';
+        
+        // Update page title
+        document.getElementById('page-title').textContent = appName;
+        
+        // Update favicon if custom icon is set
+        if (iconUrl) {
+            document.getElementById('favicon-link').href = iconUrl;
+        }
+        
+        // Update status display
+        const statusDisplay = document.getElementById('status-display');
+        statusDisplay.innerHTML = `
+            <p>This app sets the correct theme-color meta tags for Firefox on Android, ensuring the status bar appears dark.</p>
+            <br>
+            <p><strong>Status:</strong> ${redirectEnabled ? '✅ Redirect enabled' : '❌ Redirect disabled'}</p>
+            ${redirectUrl ? `<p><strong>Target:</strong> ${redirectUrl}</p>` : ''}
+            ${appName !== 'Dark Theme Redirector' ? `<p><strong>App Name:</strong> ${appName}</p>` : ''}
+        `;
+        
+        // Perform redirect if enabled
+        if (redirectEnabled && redirectUrl) {
+            statusDisplay.innerHTML = `
+                <h2 style="color: #fff; margin-bottom: 10px;">🔄 Redirecting...</h2>
+                <p>Taking you to ${redirectUrl}</p>
+            `;
+            
+            setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
